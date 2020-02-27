@@ -3,7 +3,7 @@ const bodyParser = require('body-parser')
 const hbs = require('hbs')
 
 const Database = require('./lib/database.js')
-const ApiHandler = require('./lib/api.js')
+const ApiHandler = require('./lib/api_handler.js')
 const logger = require('./lib/logger.js')
 
 let app = null;

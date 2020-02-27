@@ -2,18 +2,18 @@
 *    1. Parse cookies
 *    2. Detect wherether user authorized, using cookie 'token'
 *    3. Depending on previous result creates login/register or profile buttons
-*    4. Run pagespecific initialization (page() function)
+*    4. Run page-specific initialization (page() function)
 *
 */
 
 let navbarButtonsContainer = null;
 
+
 function main() {
-    // document.cookie = 'token=12h534abcd'
-    // document.cookie = 'username=Igormahov'
     initVars()
     initEventListeners()
     let authorized = checkIfAuthorized()
+    //TODO: show userpic if authorized
     if (authorized) { /* showProfile() */ }
     else { showLoginButtons() }
 
@@ -23,16 +23,16 @@ function main() {
 }
 
 function initVars() {
-    navbarButtonsContainer = $('#navbar-buttons-container')[0]
+    navbarButtonsContainer = $('#navbar-buttons-container').get(0)
 }
 
 function initEventListeners() {
-    $('#reg-cancel-button')[0].addEventListener('click', sendRegisterForm)
-    $('#reg-button')[0].addEventListener('click', ()=>{
+    $('#reg-cancel-button').on('click', sendRegisterForm)
+    $('#reg-button').on('click', ()=>{
         $('#reg-dialog').modal('hide')
     })
 
-    $('#msg-ok-button')[0].addEventListener('click', ()=>{
+    $('#msg-ok-button').on('click', ()=>{
         $('#msg-dialog').modal('hide')
     })
 }
@@ -45,6 +45,9 @@ function checkIfAuthorized() {
     return false
 }
 
+/**
+ * Convert document.cookie into key-value object
+ */
 function cookieToObject() {
     let cookie = {}
     if (document.cookie) {
@@ -56,6 +59,9 @@ function cookieToObject() {
     return cookie
 }
 
+/**
+ * Show 'Login' and 'Register' buttons
+ */
 function showLoginButtons() {
     let loginLinkLi = document.createElement('li')
     loginLinkLi.className = 'nav-item'
@@ -80,17 +86,15 @@ function showLoginButtons() {
     navbarButtonsContainer.appendChild(registerLinkLi)
 
 }
+
 function showRegistrationDailog() {
     $('#reg-dialog').modal()
 }
 
 function sendRegisterForm() {
     let fd = new FormData($('#reg-form')[0])
-    let xhr = new XMLHttpRequest()
-    xhr.open('POST', '/api')
-    xhr.setRequestHeader('Content-Type', 'application/json')
-    xhr.addEventListener('load', (e)=>{
-        let resp = JSON.parse(xhr.response)
+    Api.registerUser(fd, (response)=>{
+        let resp = JSON.parse(response)
         $('#reg-dialog').modal('hide')
         if (resp.successful) {
             showMessageDialog('Registration successful', 'OK')
@@ -99,19 +103,18 @@ function sendRegisterForm() {
             showMessageDialog('Registration failed', resp.msg)
         }
     })
-    xhr.send(JSON.stringify({ f: 'register', args: [ formDataToObject(fd) ] }))
 }
 
+/**
+ * Convert FormData into key-value object
+ * @param {FormData} fd FormData to convert
+ */
 function formDataToObject(fd) {
     let obj = {}
     fd.forEach((value, key)=>{
-        console.log(key)
         obj[key] = value
     })
     return obj
-    // for (let item of fd.entries()) {
-    //     console.log(item)
-    // }
 }
 
 function showMessageDialog(title, message) {
